@@ -3,9 +3,8 @@ require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const mongoose = require('mongoose')
-const app = new express()
+const app = new express() 
 
-const Person = require('./models/Person')
 const personRouter = require('./routes/personRoute')
 
 app.use(morgan('dev'))

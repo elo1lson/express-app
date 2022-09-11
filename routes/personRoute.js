@@ -61,10 +61,15 @@ router.patch('/:id', async (req, res) => {
         }
         const updatedPerson = await Person.updateOne({ _id: id }, person)
         if (!updatedPerson.matchedCount === 0) {
-            res.status(422).json({ message: 'Usuário não encontrado' })
-            return
+
+            const updatedPerson = await Person.updateOne({ _id: id }, person)
+
+            if (!updatedPerson.matchedCount === 0) {
+                res.status(422).json({ message: 'Usuário não encontrado' })
+                return
+            }
+            return res.status(200).json(person)
         }
-        return res.status(200).json(person)
     } catch (error) {
         return res.status(500).json({ error: error })
     }
