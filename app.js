@@ -1,46 +1,28 @@
+
+require('dotenv').config()
 const express = require('express')
-const morgan= require('morgan')
-const bodyParser = require('body-parser')
+const morgan = require('morgan')
+const mongoose = require('mongoose')
 const app = new express()
 
-const productRoute = require('./routes/produtos.js')
-const homeRoute = require('./routes/home.js')
+const Person = require('./models/Person')
+const personRouter = require('./routes/personRoute')
 
 app.use(morgan('dev'))
+app.use(
+	express.urlencoded({
+		extended: true
+	}))
+app.use(express.json())
 
-app.use(bodyParser.urlencoded({extended:false}))
-app.use(bodyParser.json())
+app.use('/person', personRouter)
 
-app.use('/produtos',productRoute)
-app.use('/',homeRoute)
-
-app.use((req, res, next)=>{
-	res.header('Acces-Control-Allow-Origin', '*')
-	res.header(
-		'Acces-Control-Allow-Header',
-		 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
-		)
-	if(res.method === 'OPTIONS'){
-		res.header('Acces-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET')
-		return res.status(200).send({})
-	}
-	next()
-})
-
-app.use((req, res, next)=>{
-	const erro = new Error('Não encontrado!')
-	erro.status = 404
-	next(erro)
-})
-
-app.use((error, req, res, next)=>{
-	res.status(error.status || 500)
-	return res.send({
-		erro:{
-			message: error.message
-		}
+mongoose.connect(process.env.URL)
+	.then(() => {
+		app.listen(3000, () => {
+			console.log('Logado!');
+		})
 	})
+	.catch((e) => console.log(e, 'erro!'))
 
-
-})
 module.exports = app
