@@ -1,6 +1,7 @@
 const router = require('express').Router()
-const { translateAliases } = require('../models/Person')
 const Person = require('../models/Person')
+
+let error = 'Ocorreu um erro ao tentar realizar esta ação'
 
 router.post('/', async (req, res) => {
     const { name, salary, approved } = req.body
@@ -19,7 +20,7 @@ router.post('/', async (req, res) => {
         return res.status(201).json({
             message: 'Created user'
         })
-    } catch (error) {
+    } catch (e) {
         return res.status(500).json({ error: error })
     }
 })
@@ -29,7 +30,7 @@ router.get('/', async (req, res) => {
 
         const people = await Person.find()
         return res.status(200).json(people)
-    } catch (error) {
+    } catch (e) {
         return res.status(500).json({ error: error })
     }
 
@@ -44,11 +45,12 @@ router.get('/:id', async (req, res) => {
             return
         }
         return res.status(200).json(person)
-    } catch (error) {
+    } catch (e) {
         return res.status(500).json({ error: error })
     }
 
 })
+
 router.patch('/:id', async (req, res) => {
     try {
         const id = req.params.id
@@ -70,9 +72,29 @@ router.patch('/:id', async (req, res) => {
             }
             return res.status(200).json(person)
         }
-    } catch (error) {
+    } catch (e) {
         return res.status(500).json({ error: error })
     }
 
 })
+
+router.delete('/:id', async (req, res) => {
+ try {
+    const id = req.params.id
+    const person = await Person.findOne({ _id: id })
+    if (!person) {
+        res.status(422).json({ message: 'Usuário não encontrado' })
+        return
+    }
+   
+        await Person.deleteOne({ _id: id })
+        res.status(200).send({ message: 'Usuário removido com sucesso!' })
+        return
+
+    } catch (e) {
+        return res.status(500).json({ error: error })
+    }
+
+})
+
 module.exports = router
